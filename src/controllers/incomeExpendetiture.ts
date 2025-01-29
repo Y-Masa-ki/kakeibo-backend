@@ -10,7 +10,7 @@ export const getAmount= async (c: Context) => {
     const itemsPerPage = 10;
 
     //総コンテンツ数の取得
-    const totalContentsResult = await pool.query('SELECT count(*) AS total FROM income_expenditure WHERE delete_flag = FALSE');
+    const totalContentsResult = await pool.query('SELECT count(*) AS total FROM income_expenditure WHERE income_expenditure.delete_flag = FALSE');
     const totalContents = parseInt(totalContentsResult.rows[0].total, 10);
 
     // 総ページ数の計算
@@ -24,8 +24,8 @@ export const getAmount= async (c: Context) => {
     const result = await pool.query<IncomeExpenditure>(
         `SELECT * FROM income_expenditure 
          JOIN amount_categories ON income_expenditure.category_id = amount_categories.id
-         WHERE delete_flag = FALSE 
-         ORDER BY payment_date DESC
+         WHERE income_expenditure.delete_flag = FALSE 
+         ORDER BY income_expenditure.payment_date DESC
          LIMIT $1 OFFSET $2`,
         [itemsPerPage, offset]
     );
@@ -41,7 +41,7 @@ export const getAmount= async (c: Context) => {
     console.error(err);
     return c.json({ 
         status : 500,
-        error: 'データ取得に失敗しました' }, 500);
+        error: 'データ取得に失敗しましたわよ' }, 500);
   }
 };
 

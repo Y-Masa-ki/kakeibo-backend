@@ -4,35 +4,39 @@ services:
     build:
       context: .
     ports:
-      - "${APP_PORT}:${APP_PORT}"
+      - "${APP_PORT}:${APP_PORT}" # アプリケーションのポートを公開
+    volumes:
+      - .:/usr/src/app           # ローカルのコードをコンテナにマウント
+      - /usr/src/app/node_modules # node_modulesはコンテナ内で管理
     environment:
-      NODE_ENV: ${NODE_ENV}
+      NODE_ENV: ${NODE_ENV:-development} # デフォルトでdevelopmentに設定
       DB_HOST: db
-      DB_PORT: ${DB_PORT}
-      DB_USER: ${DB_USER}
-      DB_PASSWORD: ${DB_PASSWORD}
-      DB_NAME: ${DB_NAME}
+      DB_PORT: ${DB_PORT:-5432} # デフォルトポートを設定
+      DB_USER: ${DB_USER:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-postgres}
+      DB_NAME: ${DB_NAME:-kakeibo_db}
     depends_on:
       db:
-        condition: service_healthy  # ← DBが起動完了するまで待機
+        condition: service_healthy # DBが起動完了するまで待機
+    command: ["npx", "nodemon", "src/app.ts"] # nodemonを使用してリアルタイム反映
     env_file:
-      - .env # .envを明示的に指定
+      - .env # 環境変数を読み込む
 
   db:
     image: postgres:15
     container_name: backend-db-1
     environment:
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+      POSTGRES_DB: ${DB_NAME:-kakeibo_db}
     ports:
-      - "5432:5432"
+      - "5432:5432" # PostgreSQLのデフォルトポート
     volumes:
-      - pg_data:/var/lib/postgresql/data # データを永続化
+      - pg_data:/var/lib/postgresql/data # データ永続化のためのボリューム
     env_file:
       - .env # 環境変数を共有
     healthcheck:
-      test: ["CMD", "pg_isready", "-U", "${DB_USER}", "-d", "${DB_NAME}"]
+      test: ["CMD", "pg_isready", "-U", "${DB_USER:-postgres}", "-d", "${DB_NAME:-kakeibo_db}"]
       interval: 10s
       retries: 5
       timeout: 5s

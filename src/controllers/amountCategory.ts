@@ -21,3 +21,24 @@ export const getAmountCategory = async(c:Context) => {
             error: 'データ取得に失敗しました。ダメですよ' }, 500);
     }
 }
+
+export const postAmountCategory = async(c:Context) => {
+    console.log('--test--');
+    try {
+        console.log('--start--')
+        const result = await pool.query<AmountCategory>(
+            `INSERT INTO amount_categories (category_name) 
+            VALUES ($1) RETURNING *`,
+        );
+        console.log('--test--', result);
+        return c.json({
+            status : 200,
+            data: result.rows, // 実際のデータ
+        });
+    }catch(err){
+        console.error(err);
+        return c.json({ 
+            status : 500,
+            error: 'データ取得に失敗しました。ダメですよ' }, 500);
+    }
+}

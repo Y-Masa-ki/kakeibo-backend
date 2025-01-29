@@ -2,7 +2,7 @@
 FROM node:18-alpine
 
 # 環境変数を定義
-ARG NODE_ENV
+ARG NODE_ENV=development
 ENV NODE_ENV=$NODE_ENV
 
 # 作業ディレクトリを設定
@@ -11,17 +11,20 @@ WORKDIR /usr/src/app
 # package.jsonとpackage-lock.jsonをコピー
 COPY package*.json ./
 
-# 依存関係をインストール
+# 開発用依存関係も含めてインストール
 RUN npm install
+
+# TypeScriptが必要な場合を考慮しインストール
+RUN npm install -g typescript nodemon
 
 # アプリケーションコードをコピー
 COPY . .
 
-# TypeScriptをコンパイル
-RUN npm run build
+# TypeScriptのビルドをスキップ（リアルタイム反映のため、コンテナ内でnodemonやtscを使用）
+# RUN npm run build
 
-# サーバーを起動
-CMD ["node", "dist/app.js"]
+# アプリケーションの起動コマンドをnodemonに変更
+CMD ["npx", "nodemon", "src/app.ts"]
 
 # アプリケーションを実行するポートを公開
 EXPOSE 4000
