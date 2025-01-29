@@ -14,17 +14,17 @@ COPY package*.json ./
 # 開発用依存関係も含めてインストール
 RUN npm install
 
-# TypeScriptが必要な場合を考慮しインストール
+# TypeScriptとnodemonをインストール
 RUN npm install -g typescript nodemon
 
 # アプリケーションコードをコピー
 COPY . .
 
-# TypeScriptのビルドをスキップ（リアルタイム反映のため、コンテナ内でnodemonやtscを使用）
+# TypeScriptのビルドをスキップ（開発中はリアルタイム反映を利用）
 # RUN npm run build
 
-# アプリケーションの起動コマンドをnodemonに変更
-CMD ["npx", "nodemon", "src/app.ts"]
+# TypeScriptコンパイルとnodemonを並行して実行
+CMD ["sh", "-c", "npx tsc --watch & npx nodemon dist/app.js"]
 
 # アプリケーションを実行するポートを公開
 EXPOSE 4000

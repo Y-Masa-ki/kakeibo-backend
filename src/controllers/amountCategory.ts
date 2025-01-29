@@ -24,11 +24,13 @@ export const getAmountCategory = async(c:Context) => {
 
 export const postAmountCategory = async(c:Context) => {
     console.log('--test--');
+    const body = await c.req.json();
+    const { category_name } = body;
     try {
-        console.log('--start--')
+        console.log('----')
         const result = await pool.query<AmountCategory>(
             `INSERT INTO amount_categories (category_name) 
-            VALUES ($1) RETURNING *`,
+            VALUES ($1) RETURNING *`,[category_name]
         );
         console.log('--test--', result);
         return c.json({

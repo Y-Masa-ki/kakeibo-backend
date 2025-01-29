@@ -18,7 +18,7 @@ services:
     depends_on:
       db:
         condition: service_healthy # DBが起動完了するまで待機
-    command: ["npx", "nodemon", "src/app.ts"] # nodemonを使用してリアルタイム反映
+    command: ["sh", "-c", "npx tsc --watch & npx nodemon dist/app.js"] # コンパイルとnodemonを同時実行
     env_file:
       - .env # 環境変数を読み込む
 
