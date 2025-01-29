@@ -1,3 +1,10 @@
+# Docker関連ファイル
+docker-compose.override.yml
 .env
+
+# キャッシュやビルド成果物
+*.tar
+*.bak
 dist/
 node_modules/
+backup.sql

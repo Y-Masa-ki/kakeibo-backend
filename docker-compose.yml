@@ -7,19 +7,35 @@ services:
       - "${APP_PORT}:${APP_PORT}"
     environment:
       NODE_ENV: ${NODE_ENV}
-      DB_HOST: ${DB_HOST}
+      DB_HOST: db
       DB_PORT: ${DB_PORT}
       DB_USER: ${DB_USER}
       DB_PASSWORD: ${DB_PASSWORD}
       DB_NAME: ${DB_NAME}
     depends_on:
-      - db
+      db:
+        condition: service_healthy  # ← DBが起動完了するまで待機
+    env_file:
+      - .env # .envを明示的に指定
 
   db:
     image: postgres:15
+    container_name: backend-db-1
     environment:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: ${DB_NAME}
     ports:
       - "5432:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data # データを永続化
+    env_file:
+      - .env # 環境変数を共有
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "${DB_USER}", "-d", "${DB_NAME}"]
+      interval: 10s
+      retries: 5
+      timeout: 5s
+
+volumes:
+  pg_data:
